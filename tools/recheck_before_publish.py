@@ -178,10 +178,60 @@ def check_d(conds):
         ok("DEFAULT 仍是 2 条")
 
 
+
+# ------------------------------------------------------------------ 自测
+
+def selftest():
+    """验证 A 这条判据**真的抓得住错**,而不是永远报绿。
+
+    🔴 项目纪律:结论正确不能反过来证明方法有效。两个方向各注入一次已知错误 ——
+    第二个方向正是 2026-09-01 真实发生过的那个(差集多算了 CVE-2025-24813)。
+    """
+    global FAILS
+    print("🔬 自测:往两个方向各注入一次已知错误,看 A 认不认得出")
+    rows, _ = parse_table()
+
+    def run(mutate, label, expect_fail):
+        global FAILS
+        rs = [dict(r) for r in rows]
+        mutate(rs)
+        FAILS = []
+        buf = sys.stdout
+        sys.stdout = open(os.devnull, "w", encoding="utf-8")
+        try:
+            check_a(rs)
+        finally:
+            sys.stdout.close()
+            sys.stdout = buf
+        got = bool(FAILS)
+        print("  %s %-46s 报错=%s 期望=%s" % ("OK " if got == expect_fail else "❌",
+                                              label, got, expect_fail))
+        return got == expect_fail
+
+    good = run(lambda rs: None, "原样(不该报错)", False)
+    # 方向一:表里说「NVD 有」,实际查不到
+    m1 = run(lambda rs: [r.update(nvd_has85=True) for r in rs if r["cve"] == "CVE-2025-53506"],
+             "把真查不到的 53506 标成「NVD 有」", True)
+    # 方向二:☠️ 真实发生过的那个 —— 差集多算
+    m2 = run(lambda rs: [r.update(nvd_has85=False) for r in rs if r["cve"] == "CVE-2025-24813"],
+             "把真查得到的 24813 标成「NVD 没有」", True)
+
+    FAILS = []
+    if good and m1 and m2:
+        print("  ✅ 自测通过 —— 这条判据两个方向都抓得住")
+        return True
+    print("  ❌ 自测没过 —— 判据本身坏了,它给的绿灯不算数")
+    return False
+
+
 def main():
     print("=" * 66)
     print("tomcat85-check 发文前复核 ——", time.strftime("%Y-%m-%d %H:%M:%S"))
     print("=" * 66)
+    if not selftest():
+        sys.exit(2)
+    if "--selftest" in sys.argv:
+        return
     rows, conds = parse_table()
     print("从 CveTable.java 解析出 %d 条(独立于 sources.json)" % len(rows))
 
