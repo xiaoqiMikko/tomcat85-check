@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -140,6 +141,120 @@ class CveTableTest {
     void 只有那一条自相矛盾() {
         long n = CveTable.all().stream().filter(CveTable.Cve::upstreamSelfConflict).count();
         assertEquals(1, n, "自相矛盾的条目数变了,回去看是不是上游改了数据");
+    }
+
+    // ---------------------------------------------------------------- 评级(三套 + 两个 CVSS 版本)
+
+    @Test
+    void 每条都要有两套文字评级() {
+        // 🔴 只剩 GitHub 那一套的话,我们就只是在转述别人的判断,本注没有独立价值。
+        for (CveTable.Cve c : CveTable.all()) {
+            assertNotNull(c.severity(), c.id() + " 缺 GitHub 评级");
+            assertNotNull(c.asfSeverity(), c.id() + " 缺 Apache 的 ASF 评级");
+        }
+    }
+
+    @Test
+    void 两套评级用的是两套词表() {
+        // ASF:low / moderate / important / critical;GitHub:low / medium / high / critical
+        Set<String> asf = Set.of("low", "moderate", "important", "critical");
+        Set<String> gh = Set.of("low", "medium", "high", "critical");
+        for (CveTable.Cve c : CveTable.all()) {
+            assertTrue(asf.contains(c.asfSeverity().toLowerCase()),
+                    c.id() + " 的 ASF 评级不在四档里:" + c.asfSeverity());
+            assertTrue(gh.contains(c.severity().toLowerCase()), c.id() + " " + c.severity());
+        }
+    }
+
+    @Test
+    void 两套评级的分歧要按官方原文对齐后再数() {
+        // 对齐依据是 Tomcat 官方 security-impact.html 原文:"Important (or High)" —— 同一档两个叫法。
+        long differ = CveTable.all().stream().filter(CveTable.Cve::ratingsDiffer).count();
+        long unalign = CveTable.all().stream().filter(CveTable.Cve::ratingUnalignable).count();
+        assertTrue(differ > 0, "两套评级一条分歧都没有的话,回去看是不是对齐表写死了");
+        // 三类必须互斥且覆盖全表
+        for (CveTable.Cve c : CveTable.all()) {
+            assertFalse(c.ratingsDiffer() && c.ratingUnalignable(),
+                    c.id() + " 同时被判成「不同」和「无法对齐」");
+        }
+        assertTrue(differ + unalign < CveTable.all().size(),
+                "不该全表都有分歧(" + differ + "+" + unalign + ")");
+    }
+
+    @Test
+    void 官方明写同档的不许判成不同() {
+        // 🔴 CVE-2025-48988:Apache important / GitHub high。
+        //    官方原文 "Important (or High)" —— 这是**同一档**,判成「说法不同」就是制造噪音。
+        CveTable.Cve c = byId("CVE-2025-48988");
+        assertEquals("important", c.asfSeverity().toLowerCase());
+        assertEquals("high", c.severity().toLowerCase());
+        assertFalse(c.ratingsDiffer(), "important 与 high 是官方明写的同一档");
+        assertFalse(c.ratingUnalignable());
+    }
+
+    @Test
+    void 对不齐的只有moderate对medium那一对() {
+        // 🔴 ASF 的 Moderate 定义的是「有显著缓解因素 / 不影响常见配置 / 需认证」,
+        //    而 GitHub 的 medium 是 CVSS 分数区间 —— 官方没说这两个相等,我们也不猜。
+        //    但别把判据放太松:important(=high)对 medium 是判得了的「不同」。
+        for (CveTable.Cve c : CveTable.all()) {
+            if (c.ratingUnalignable()) {
+                assertEquals("moderate", c.asfSeverity().toLowerCase(), c.id());
+                assertEquals("medium", c.severity().toLowerCase(), c.id());
+            }
+        }
+        CveTable.Cve c = byId("CVE-2025-31650");
+        assertEquals("important", c.asfSeverity().toLowerCase());
+        assertEquals("medium", c.severity().toLowerCase());
+        assertTrue(c.ratingsDiffer(), "important(=high)对 medium 是真分歧,不该被藏进「无法对齐」");
+    }
+
+    @Test
+    void 最极端那条要能被认出来() {
+        // 🔴 CVE-2025-52520:Apache 评 low,GitHub 评 high —— 差最远的一条。
+        CveTable.Cve c = byId("CVE-2025-52520");
+        assertEquals("low", c.asfSeverity().toLowerCase());
+        assertEquals("high", c.severity().toLowerCase());
+        assertTrue(c.ratingsDiffer());
+    }
+
+    @Test
+    void CVSS缺失是null不是零() {
+        // ☠️ 上游用 0 表示「没有这个版本的分数」。让 0 混进来,算差值时会得出一堆假分歧。
+        for (CveTable.Cve c : CveTable.all()) {
+            assertFalse(Double.valueOf(0.0).equals(c.cvss3()), c.id() + " 的 cvss3 是 0.0");
+            assertFalse(Double.valueOf(0.0).equals(c.cvss4()), c.id() + " 的 cvss4 是 0.0");
+        }
+        // 14 条里只有一部分有 v3.1 分数 —— 缺失是常态,不是异常
+        long withV3 = CveTable.all().stream().filter(c -> c.cvss3() != null).count();
+        assertTrue(withV3 > 0 && withV3 < CveTable.all().size(),
+                "有 v3.1 分数的应是「部分」,实际 " + withV3 + "/" + CveTable.all().size());
+    }
+
+    @Test
+    void 文字评级与CVSS分档的分歧要认得出() {
+        // CVE-2025-55754:GitHub 评 low,而 CVSS v3.1 是 9.6(critical)—— NVD 采信的是后者。
+        CveTable.Cve c = byId("CVE-2025-55754");
+        assertEquals("low", c.severity());
+        assertEquals(9.6, c.cvss3(), 0.001);
+        assertEquals("critical", c.cvss3Severity());
+        assertTrue(c.severityGap(), "差 3 级都认不出来的话,用户会以为我们报错了");
+        // 同一条的 v4.0 只有 2.1 —— 引哪个版本,结论差一个数量级
+        assertEquals(2.1, c.cvss4(), 0.001);
+        assertTrue(c.cvssVersionSplit());
+    }
+
+    @Test
+    void 没有CVSS分数时不判分歧() {
+        for (CveTable.Cve c : CveTable.all()) {
+            if (c.cvss3() == null) {
+                assertNull(c.cvss3Severity(), c.id());
+                assertFalse(c.severityGap(), c.id() + " 没有 v3.1 分数却判了分歧");
+            }
+            if (c.cvss3() == null || c.cvss4() == null) {
+                assertFalse(c.cvssVersionSplit(), c.id() + " 缺一个版本却判了版本分裂");
+            }
+        }
     }
 
     private static CveTable.Cve byId(String id) {

@@ -81,13 +81,17 @@ def parse_table():
     """
     src = open(TABLE, encoding="utf-8").read()
     rows = []
+    # ⚠️ 生成物的字段一变，这个正则就对不上——2026-09-01 加 asfSeverity 时就撞过一次。
+    #    好在下面那条 `if not rows` 会中止而不是静默给空结果。**别把它删掉。**
     for m in re.finditer(
-            r'new Cve\("(CVE-[\d-]+)",\s*("(?:GHSA-[\w-]+)"|null),\s*"(\w+)",\s*\n'
+            r'new Cve\("(CVE-[\d-]+)",\s*("(?:GHSA-[\w-]+)"|null),\s*"(\w+)",\s*"(\w+)",\s*\n'
             r'\s*"([\d.]+)",\s*"([\d.]+)",\s*(true|false),',
             src):
         rows.append({"cve": m.group(1), "ghsa": m.group(2).strip('"'),
-                     "severity": m.group(3), "lo": m.group(4), "hi": m.group(5),
-                     "nvd_has85": m.group(6) == "true"})
+                     "severity": m.group(3), "asf": m.group(4),
+                     "lo": m.group(5), "hi": m.group(6),
+                     "nvd_has85": m.group(7) == "true"})
+    # 触发条件：每条的倒数第二行是 `"COND", "说明"`
     conds = re.findall(r'\n\s*"(\w+)", "', src)
     if not rows:
         raise SystemExit("❌ 一条都没解析出来 —— CveTable.java 的格式变了?先修本脚本再发文。")
@@ -224,6 +228,27 @@ def selftest():
     return False
 
 
+
+# ------------------------------------------------------------------ E
+
+def check_e(rows):
+    """两套文字评级都还在,且 Apache 那套仍是 ASF 四档。"""
+    print("\nE. 两套评级都在,且 Apache 用的仍是 ASF 四档")
+    asf_ok = {"low", "moderate", "important", "critical"}
+    gh_ok = {"low", "medium", "high", "critical"}
+    bad = [r["cve"] for r in rows
+           if r["asf"].lower() not in asf_ok or r["severity"].lower() not in gh_ok]
+    if bad:
+        fail("这些条目的评级不在预期词表里(上游换口径了?):%s" % bad)
+        return
+    # 对齐依据是 Tomcat 官方 security-impact.html 原文:"Important (or High)"
+    differ = [r["cve"] for r in rows
+              if {"important": "high"}.get(r["asf"].lower(), r["asf"].lower())
+              != r["severity"].lower()]
+    ok("%d 条都有两套评级;按官方原文对齐(Important = High)后仍有 %d 条写得不一样"
+       % (len(rows), len(differ)))
+
+
 def main():
     print("=" * 66)
     print("tomcat85-check 发文前复核 ——", time.strftime("%Y-%m-%d %H:%M:%S"))
@@ -240,6 +265,7 @@ def main():
     check_b(rows)
     check_c()
     check_d(conds)
+    check_e(rows)
 
     print("\n" + "=" * 66)
     if FAILS:
@@ -247,7 +273,7 @@ def main():
         for f in FAILS:
             print("   · " + f)
         sys.exit(1)
-    print("✅ 四条承重论据全过。可以发文的数字:")
+    print("✅ 五条承重论据全过。可以发文的数字:")
     print("   · 上游写了 8.5 而 NVD 查不到:**%d 条**" % gap)
     print("   · 表内共 %d 条,默认即受影响 %d 条" % (len(rows), conds.count("DEFAULT")))
 

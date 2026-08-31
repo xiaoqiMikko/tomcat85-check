@@ -140,8 +140,18 @@ def from_cna(cve):
         if x.get("lang", "").startswith("en"):
             desc = x.get("value", "")
             break
+    # 🔴 Apache 用的是 **ASF 四档**:low / moderate / important / critical,
+    #    和 GitHub 的 low / medium / high / critical **不是同一套**。
+    #    实测 14 条里 10 条两边说法不同,最极端的 CVE-2025-52520:
+    #    **Apache 评 low,GitHub 评 high。**
+    #    → 两个都要存下来,别拿其中一个冒充另一个。
+    asf = None
+    for m in cna.get("metrics", []):
+        o = m.get("other") or {}
+        if str(o.get("type", "")).lower().startswith("textual"):
+            asf = (o.get("content") or {}).get("text")
     out = {"declares85": False, "ranges85": [], "affected_raw": [],
-           "title": cna.get("title", ""), "description": desc}
+           "title": cna.get("title", ""), "description": desc, "asf_severity": asf}
     for af in cna.get("affected", []):
         prod = af.get("product") or ""
         for v in af.get("versions", []):
@@ -223,8 +233,16 @@ def from_github(cve):
         if "8.5" in rng:
             pkgs85.append({"package": pkg.get("name"), "ecosystem": pkg.get("ecosystem"),
                            "range": rng, "first_patched": v.get("first_patched_version")})
+    # 🔴 CVSS 分数:**score 为 0 或键不存在,都读作「没有这个版本的分数」,不是「分数是 0」。**
+    #    ☠️ 2026-09-01 踩过:把缺失当 0 去比差值,算出一堆假的「差 6.6 分」。
+    cs = a.get("cvss_severities") or {}
+    v3 = ((cs.get("cvss_v3") or {}).get("score")) or None
+    v4 = ((cs.get("cvss_v4") or {}).get("score")) or None
     return {"ghsa": a.get("ghsa_id"), "severity": a.get("severity"), "type": a.get("type"),
             "summary": a.get("summary", ""), "cvss": ((a.get("cvss") or {}).get("vector_string")),
+            "cvss3": v3, "cvss4": v4,
+            "cvss3_vector": ((cs.get("cvss_v3") or {}).get("vector_string")),
+            "cvss4_vector": ((cs.get("cvss_v4") or {}).get("vector_string")),
             "pkgs85": pkgs85, "all_pkgs": sorted(set(allp))}
 
 

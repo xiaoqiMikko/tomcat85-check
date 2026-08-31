@@ -110,6 +110,40 @@ java -jar tomcat85-check.jar /opt/app/lib/catalina.jar
 
 ---
 
+## 还有一件容易让你以为「工具报错了」的事:同一条 CVE 有好几个评级
+
+拿 `CVE-2025-55754` 举例,四个数字都是真的:
+
+| 谁给的 | 值 |
+|---|---|
+| Apache(ASF 四档) | **low** |
+| GitHub advisory | **low** |
+| CVSS v3.1(NVD 采信的就是它) | **9.6 critical** |
+| CVSS v4.0 | **2.1** |
+
+如果只看 NVD,你会以为这是最严重的一条;只看 Apache,你会以为可以不管。
+**两个都不是错的** —— Apache 评的是<b>默认配置下的实际可利用性</b>,CVSS 是按向量机械计算、不看你开没开那个功能。
+
+所以本工具**四个数字全印出来**,并在两边判得不一样时明确说出来。
+
+### 两套词表不是一回事,对齐只做官方支持的那一步
+
+Apache 用 `low / moderate / important / critical`,GitHub 用 `low / medium / high / critical`。
+对齐依据来自 Tomcat 官方 `security-impact.html` 原文:
+
+> **Important / High** — A vulnerability rated as **Important (or High)** impact is one which could
+> result in the compromise of data or availability of the server.
+
+→ `Important` 和 `High` 是同一档的两个叫法,这是官方自己写在一起的。
+🔴 而 **`moderate` 与 `medium` 官方没说能对齐**,本工具也不替它对 ——
+ASF 的 Moderate 定义的是「有显著缓解因素 / 不影响常见配置 / 需要认证」这类**可利用性**条件,
+GitHub 的 medium 是 CVSS 分数区间,两者不是一回事。这种情况报「官方没说这两档相等」,两个都摆给你。
+
+按这个口径,14 条里 **5 条两边判得实质不同**(最远的 `CVE-2025-52520`:Apache `low` / GitHub `high`),
+**2 条对不齐**,7 条相同。
+
+---
+
 ## 数据从哪来,怎么复现
 
 判定表 `CveTable.java` 是**生成**的,一行都不手抄:
@@ -144,7 +178,7 @@ python -u tools/recheck_before_publish.py
 
 ```bash
 mvn package        # → target/tomcat85-check.jar
-mvn test           # 50 个测试
+mvn test           # 59 个测试
 ```
 
 需要 JDK 17+。运行时零依赖,JUnit 仅测试期。

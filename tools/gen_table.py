@@ -60,6 +60,16 @@ def q(s):
     return '"' + str(s).replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ") + '"'
 
 
+def num(x):
+    """Java 里的 Double 字面量;None 写成 null。
+
+    🔴 上游把「没有这个版本的分数」表示成 **0 或缺键** ——
+    fetch_sources 已经统一成 None 了,这里只管把 None 写成 null。
+    ☠️ 千万别把它当成「分数是 0」:2026-09-01 就是这么算出一堆假分歧的。
+    """
+    return "null" if x is None else "%.1f" % float(x)
+
+
 def java_list(items):
     return "List.of(" + ", ".join(q(i) for i in items) + ")"
 
@@ -128,6 +138,26 @@ def main():
             text_range[c] = "%s..%s" % t
             conflicts.append((c, "%s..%s" % (st["lo"], st["hi"]), text_range[c]))
 
+
+    # ---- ASSERT 6:CVSS 分数必须是「有」或「没有」,不许出现 0.0
+    #      🔴 上游用 0 表示「没有这个版本的分数」。让 0 混进表里,
+    #      下游算「两个版本差几分」时会得出一堆假分歧(2026-09-01 实测踩过)。
+    for c in targets:
+        for k in ("cvss3", "cvss4"):
+            v = rows[c]["gh"].get(k)
+            if v == 0:
+                raise SystemExit("❌ ASSERT 6 失败:%s 的 %s 是 0 —— "
+                                 "应该在 fetch_sources 里就归成 None。" % (c, k))
+
+
+    # ---- ASSERT 7:每条都要拿到 Apache 自己的 ASF 评级
+    #      🔴 缺了就只剩 GitHub 那一套,而两套 14 条里有 10 条说法不同
+    #      (最极端 CVE-2025-52520:Apache low / GitHub high)。
+    #      少一套 = 我们只能转述别人的判断,那本注就没有独立价值了。
+    no_asf = [c for c in targets if not rows[c]["cna"].get("asf_severity")]
+    if no_asf:
+        raise SystemExit("❌ ASSERT 7 失败：这些 CVE 拿不到 ASF 评级：\n   " + "\n   ".join(no_asf))
+
     # ---- 生成
     lines = []
     for c in targets:
@@ -136,16 +166,19 @@ def main():
         cond, note = CONDITIONS[c]
         pkgs = sorted({p["package"] for p in r["gh"]["pkgs85"]})
         lines.append(
-            "            new Cve(%s, %s, %s,\n"
+            "            new Cve(%s, %s, %s, %s,\n"
             "                    %s, %s, %s,\n"
             "                    %s, %s,\n"
             "                    %s,\n"
-            "                    %s, %s, %s)" % (
+            "                    %s, %s, %s,\n"
+            "                    %s, %s)" % (
                 q(c), q(r["gh"].get("ghsa")), q(r["gh"].get("severity")),
+                q(r["cna"].get("asf_severity")),
                 q(r85["lo"]), q(r85["hi"]), "true" if r["nvd"]["has85"] else "false",
                 q(r["nvd"].get("status")), q(r["nvd"].get("published")),
                 java_list(pkgs),
-                q(cond), q(note), q(text_range.get(c))))
+                q(cond), q(note), q(text_range.get(c)),
+                num(r["gh"].get("cvss3")), num(r["gh"].get("cvss4"))))
 
     # 🔴 每行自己不带尾逗号，由连接符补上——否则最后一条的尾逗号会让 List.of(...) 编译不过。
     body = ",\n".join(lines)
@@ -159,7 +192,10 @@ def main():
     with open(OUT, "w", encoding="utf-8") as f:
         f.write(java)
 
-    print("✅ 五条断言全过（ASSERT 1~5）")
+    # 🔴 别写死条数 —— 本轮之前已经两次因为加了断言而让这句话过时(硬编码结论文本)。
+    #    自己数源码里出现过的 ASSERT 编号。
+    n_assert = len(set(re.findall(r"ASSERT (\d+) 失败", open(__file__, encoding="utf-8").read())))
+    print("✅ %d 条断言全过（ASSERT 1~%d）" % (n_assert, n_assert))
     print("   目标表 %d 条(NVD 无 8.5 的 %d 条 + NVD 有 8.5 的 %d 条)" % (len(targets), len(gap), len(both)))
     from collections import Counter
     cc = Counter(CONDITIONS[c][0] for c in targets)
@@ -214,13 +250,116 @@ public final class CveTable {
      * @param condition  触发条件分类;{@code DEFAULT} 表示默认配置即受影响
      * @param conditionNote 条件说明,逐字对照官方描述原文,未作外推
      * @param textRange85 仅当 CNA 结构化字段与描述正文的 8.5 区间对不上时非 null,值是正文那个
+     * @param severity    GitHub advisory 的评级(low / medium / high / critical)
+     * @param asfSeverity Apache 自己的 <b>ASF 四档</b>评级(low / moderate / important / critical)
+     *                    —— 🔴 <b>和上面那个不是同一套</b>,14 条里 10 条两边说法不同
+     * @param cvss3       CVSS v3.1 分数;<b>null 表示没有这个版本的分数,不是 0 分</b>
+     * @param cvss4       CVSS v4.0 分数;同上
      */
-    public record Cve(String id, String ghsa, String severity,
+    public record Cve(String id, String ghsa, String severity, String asfSeverity,
                       String lo85, String hi85, boolean nvdHas85,
                       String nvdStatus, String nvdPublished,
                       List<String> packages,
                       String condition, String conditionNote,
-                      String textRange85) {
+                      String textRange85,
+                      Double cvss3, Double cvss4) {
+
+        /**
+         * CVSS v3.1 分数换算成档位;没有分数则返回 null。
+         *
+         * <p>🔴 {@code null} 是「<b>没有这个版本的分数</b>」,不是「分数是 0」——
+         * 14 条里只有 9 条有 v3.1 分数。把缺失当 0 会算出一堆假的分歧。
+         */
+        public String cvss3Severity() {
+            if (cvss3 == null) {
+                return null;
+            }
+            return cvss3 >= 9 ? "critical" : cvss3 >= 7 ? "high" : cvss3 >= 4 ? "medium" : "low";
+        }
+
+        /**
+         * Apache 和 GitHub 两套评级<b>实质不同</b> —— 不是词表差异,是判断差异。
+         *
+         * <p>对齐依据来自 <b>Tomcat 官方 {@code security-impact.html} 原文</b>,不是我们的推断:
+         * <ul>
+         *   <li><i>"<b>Important / High</b> — A vulnerability rated as Important (or High) impact
+         *       is one which could result in the compromise of data or availability of the server."</i>
+         *       → <b>Important 和 High 是同一档的两个叫法</b>,官方自己写在一起的。</li>
+         *   <li>{@code Critical} 与 {@code Low} 两边同名,直接对上。</li>
+         * </ul>
+         *
+         * <p>🔴 <b>{@code moderate} 与 {@code medium} 官方没说能对齐</b>,本方法也不替它对 ——
+         * ASF 的 Moderate 定义的是「有显著缓解因素 / 不影响常见配置 / 需要认证」这类
+         * <b>可利用性</b>条件,而 GitHub 的 medium 是 CVSS 分数区间,两者不是一回事。
+         * 那种情况走 {@link #ratingUnalignable()},既不算相同也不算不同。
+         *
+         * <p>实测差最远的 {@code CVE-2025-52520}:<b>Apache 评 low,GitHub 评 high</b>。
+         */
+        public boolean ratingsDiffer() {
+            String a = alignAsf(asfSeverity);
+            String g = severity == null ? null : severity.toLowerCase();
+            if (a == null || g == null || ratingUnalignable()) {
+                return false;
+            }
+            return !a.equals(g);
+        }
+
+        /**
+         * 两边的词无法在官方依据下对齐({@code moderate} / {@code medium})——
+         * <b>说不清相同还是不同,就如实说说不清</b>,不许猜一个。
+         */
+        public boolean ratingUnalignable() {
+            String a = alignAsf(asfSeverity);
+            String g = severity == null ? null : severity.toLowerCase();
+            // 🔴 只有 moderate 对 medium 这**一对**没有官方依据可判。
+            //    `important` 已经被官方原文锚定成 `high`,所以 high vs medium 是判得了的「不同」——
+            //    把它也归进「无法对齐」就是把判据放得过松,会把真实的分歧藏起来。
+            return "moderate".equals(a) && "medium".equals(g);
+        }
+
+        /** 只做官方原文支持的那一步换算:Important → High。其余原样。 */
+        private static String alignAsf(String s) {
+            if (s == null) {
+                return null;
+            }
+            String t = s.toLowerCase();
+            return t.equals("important") ? "high" : t;
+        }
+
+        /**
+         * 文字评级和 CVSS v3.1 差了 2 级以上 —— <b>用户会因此以为我们报错了</b>。
+         *
+         * <p>实测 {@code CVE-2025-55754}:Apache 官方评 <b>low</b>,而 CVSS v3.1 是
+         * <b>9.6 critical</b>(NVD 采信的就是它)。一个只看 NVD 的人会认为这是最严重的一条。
+         * <b>两个都不是错的 —— 它们量的本来就是不同的东西</b>:
+         * 文字评级看默认配置下的实际可利用性,CVSS 向量机械计算、不看你开没开那个功能。
+         */
+        public boolean severityGap() {
+            String d = cvss3Severity();
+            if (d == null || severity == null) {
+                return false;
+            }
+            return Math.abs(rank(d) - rank(severity)) >= 2;
+        }
+
+        /**
+         * CVSS v3.1 与 v4.0 都有,且差 3 分以上。
+         *
+         * <p>实测 {@code CVE-2025-55754}:<b>v3.1 = 9.6,v4.0 = 2.1</b>,同一个机构给的两个版本差 7.5 分。
+         * 引哪个数字,结论就差一个数量级。
+         */
+        public boolean cvssVersionSplit() {
+            return cvss3 != null && cvss4 != null && Math.abs(cvss3 - cvss4) >= 3;
+        }
+
+        private static int rank(String s) {
+            return switch (s) {
+                case "critical" -> 4;
+                case "high" -> 3;
+                case "medium" -> 2;
+                default -> 1;
+            };
+        }
 
         /**
          * Apache 自己的两处写法对不上 —— {@code affected} 结构化字段一个区间,

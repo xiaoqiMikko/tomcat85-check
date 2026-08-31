@@ -13,7 +13,7 @@ import java.util.Map;
  * 命令行入口。
  *
  * <p>回答一个问题:<b>我这台还在跑的 Tomcat 8.5,到底中了哪些 2025 年的 CVE?</b>
- * 而这个问题在别处查不到答案 —— 官方 8.5 安全页停在 2024、NVD 里 11 条没有 8.5 的条目、
+ * 而这个问题在别处查不到答案 —— 官方 8.5 安全页停在 2024、NVD 里 10 条没有 8.5 的条目、
  * GitHub advisory 有但一条修复版都不给。
  */
 public final class Main {
@@ -182,12 +182,45 @@ public final class Main {
                     c.nvdHas85() ? "" : "🔍 NVD 的 cpe 里查不到 8.5");
             out.println("      影响 " + c.lo85() + "–" + c.hi85()
                     + (c.ghsa() == null ? "" : "  " + c.ghsa()));
+            // 🔴 四个数字都摆出来,标签必须写清是谁给的。
+            //    Apache 用 ASF 四档(low/moderate/important/critical),
+            //    GitHub 用 low/medium/high/critical —— **不是同一套**,别拿一个冒充另一个。
+            out.println("      评级:Apache(ASF)" + c.asfSeverity()
+                    + " · GitHub " + c.severity()
+                    + " · CVSS v3.1 " + score(c.cvss3(), c.cvss3Severity())
+                    + " · CVSS v4.0 " + score(c.cvss4(), null));
+            // 分歧要主动说。不说的话,用户去别处一看对不上,会认为**本工具报错了**。
+            if (c.ratingsDiffer()) {
+                out.println("      ⚠️  Apache 和 GitHub 判得不一样(「" + c.asfSeverity()
+                        + "」vs「" + c.severity() + "」)。两套体系量的不是同一件事:"
+                        + "Apache 评的是默认配置下的实际可利用性,GitHub / CVSS 按向量机械计算。");
+            } else if (c.ratingUnalignable()) {
+                out.println("      ·  Apache 评「" + c.asfSeverity() + "」,GitHub 评「"
+                        + c.severity() + "」—— 官方没说这两档相等,本工具不替它对齐,两个都摆给你。");
+            }
+            if (c.severityGap()) {
+                out.println("      ⚠️  GitHub 评「" + c.severity()
+                        + "」,而 CVSS v3.1 是「" + c.cvss3Severity() + "」—— NVD 采信的是后者。");
+            }
+            if (c.cvssVersionSplit()) {
+                out.println("      ⚠️  同一条 CVE,CVSS v3.1 与 v4.0 差了 "
+                        + String.format("%.1f", Math.abs(c.cvss3() - c.cvss4()))
+                        + " 分 —— 引哪个版本的分数,结论就差一个档次。");
+            }
             out.println("      " + r.reason());
             if (c.upstreamSelfConflict()) {
                 out.println("      ⚠️  Apache 自己两处写法不一致:结构化字段 " + c.lo85() + "–" + c.hi85()
                         + ",描述正文 " + c.textRange85() + "。本工具取窄的那个(少报)。");
             }
         }
+    }
+
+    /** 没有那个版本的分数时印「—」,<b>不许印 0</b> —— 那会被读成「0 分 = 没风险」。 */
+    private static String score(Double v, String tier) {
+        if (v == null) {
+            return "—";
+        }
+        return String.format("%.1f", v) + (tier == null ? "" : "(" + tier + ")");
     }
 
     private static int rank(String severity) {
