@@ -77,6 +77,47 @@ def http_text(url):
         return r.read().decode("utf-8", "replace")
 
 
+
+# ------------------------------------------------------------------ 版本比较
+
+def vtuple(v):
+    """把 Tomcat 版本号变成可比较的元组;里程碑版排在同号正式版前面。
+
+    🔴 8.5 / 9.0 / 10.1 / 11.0 在 NVD 眼里是**同一条全序**(8.5.100 < 9.0.0),
+    所以「下界开放 .. 9.0.99」这样的区间**是覆盖 8.5 的**。
+    """
+    if not v:
+        return None
+    m = re.match(r"^(\d+(?:\.\d+)*)(?:[.\-](M|RC|ALPHA|BETA)(\d*))?$", str(v).strip(), re.I)
+    if not m:
+        return None
+    nums = [int(x) for x in m.group(1).split(".")]
+    ms = -1
+    if m.group(2):
+        ms = int(m.group(3)) if m.group(3) else 0
+    return (nums + [0] * 8)[:8] + [ms]
+
+
+def covers_85(lo, hi):
+    """一个 [lo, hi] 区间覆不覆盖 8.5.x。端点为 None 表示该侧开放。
+
+    ☠️ **2026-09-01 实测抓到的坑**:`CVE-2025-24813` 在 NVD 里写的是
+    `versionStartIncluding = None`(下界开放)、`versionEndExcluding = 9.0.99` ——
+    **它覆盖 8.5**,而旧判据 `lo.startswith("8.5")` 把它漏成了「NVD 没有 8.5」。
+    是发文前复核脚本的**独立口径**(按 cpe 查 8.5.100)撞出来的,单条查 cveId 永远发现不了。
+    """
+    lo85, hi85 = vtuple("8.5.0"), vtuple("8.5.100")
+    l, h = vtuple(lo), vtuple(hi)
+    if lo and l is None:
+        return False   # 解析不了就不认,别猜
+    if hi and h is None:
+        return False
+    if l is not None and l > hi85:
+        return False   # 区间整个在 8.5.100 之后
+    if h is not None and h < lo85:
+        return False   # 区间整个在 8.5.0 之前
+    return True
+
 # ------------------------------------------------------------------ 主列表
 
 def cve_list(year="2025"):
@@ -146,7 +187,8 @@ def from_nvd(cve):
                     enum_count += 1
                     if ver.startswith("8.5"):
                         enum85.append(ver)
-    has85 = any(r["lo"] and str(r["lo"]).startswith("8.5") for r in ranges) or bool(enum85)
+    # 🔴 不能只认「下界以 8.5 开头」—— 见 covers_85 的注释,下界开放的区间同样覆盖 8.5。
+    has85 = any(covers_85(r["lo"], r["hi"]) for r in ranges) or bool(enum85)
     return {"status": it.get("vulnStatus"), "published": (it.get("published") or "")[:10],
             "has85": has85, "ranges": ranges, "enum85": enum85,
             "enum_count": enum_count, "in_nvd": True}
@@ -192,6 +234,19 @@ def selftest():
     """已知答案回测 —— 不过就不许出结论。"""
     ok = True
     print("🔬 回测(阳性 %s / 负对照 %s)" % (POSITIVE, NEGATIVE))
+
+    # ---- 区间判据的边界回测。☠️ 旧判据 lo.startswith("8.5") 把「下界开放 .. 9.0.99」
+    #      漏成了「NVD 没有 8.5」,而那正是 CVE-2025-24813 的形状。
+    cases = [(None, "9.0.99", True), ("8.5.0", "8.5.100", True), ("9.0.0", "9.0.106", False),
+             ("10.1.0", "10.1.42", False), ("8.5.90", "8.5.100", True), (None, "8.5.0", True),
+             (None, "8.4.9", False), ("8.5.101", None, False), ("9.0.0.M1", "9.0.106", False),
+             (None, None, True)]
+    bad = [(lo, hi, w) for lo, hi, w in cases if covers_85(lo, hi) != w]
+    if bad:
+        print("  ❌ covers_85 边界回测失败:", bad)
+        ok = False
+    else:
+        print("  covers_85 边界回测 %d 条全过" % len(cases))
 
     a = from_cna(POSITIVE)
     b = from_nvd(POSITIVE)

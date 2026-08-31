@@ -1,5 +1,5 @@
 {
- "generated": "2026-09-01 01:06:19",
+ "generated": "2026-09-01 01:40:06",
  "source_list": "https://tomcat.apache.org/security-9.html",
  "rows": {
   "CVE-2025-24813": {
@@ -63,7 +63,7 @@
    "nvd": {
     "status": "Analyzed",
     "published": "2025-03-10",
-    "has85": false,
+    "has85": true,
     "ranges": [
      {
       "lo": null,
@@ -1667,7 +1667,6 @@
  "summary": {
   "total": 17,
   "gap": [
-   "CVE-2025-24813",
    "CVE-2025-31650",
    "CVE-2025-31651",
    "CVE-2025-46701",
@@ -1680,6 +1679,7 @@
    "CVE-2025-66614"
   ],
   "both": [
+   "CVE-2025-24813",
    "CVE-2025-55752",
    "CVE-2025-55754",
    "CVE-2025-61795"

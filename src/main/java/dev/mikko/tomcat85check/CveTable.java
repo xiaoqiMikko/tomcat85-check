@@ -5,17 +5,17 @@ import java.util.List;
 /**
  * Tomcat 8.5 的 CVE 判定表 —— <b>本文件由 {@code tools/gen_table.py} 生成,不要手改。</b>
  *
- * <p>生成时间:2026-09-01 01:06:19。数据来自三个一手源(见 {@code tools/fetch_sources.py}):
+ * <p>生成时间:2026-09-01 01:40:06。数据来自三个一手源(见 {@code tools/fetch_sources.py}):
  * Apache 作为 CNA 的原始记录(CVE.org)、NVD、GitHub advisory。
  *
- * <p>表里共 17 条 CVE-2025-* 中筛出的 <b>11 + 3</b> 条 ——
+ * <p>表里共 17 条 CVE-2025-* 中筛出的 <b>10 + 4</b> 条 ——
  * 全部是 Apache 逐字写了
  * <i>"The following versions were EOL at the time the CVE was created but are known to be
  * affected: 8.5.x though 8.5.100"</i> 的条目。其中:
  * <ul>
- *   <li><b>11 条 {@code nvdHas85 == false}</b> —— NVD 的 cpe 配置里查不到 8.5,
+ *   <li><b>10 条 {@code nvdHas85 == false}</b> —— NVD 的 cpe 配置里查不到 8.5,
  *       读 NVD 的工具和文章看不见它们;</li>
- *   <li>3 条 NVD 也有 8.5。</li>
+ *   <li>4 条 NVD 也有 8.5。</li>
  * </ul>
  *
  * <p>🔴 <b>8.5 侧一条修复版都没有</b>({@code first_patched_version} 全为 null,由 ASSERT 4 守着)。
@@ -82,7 +82,7 @@ public final class CveTable {
 
     private static final List<Cve> ALL = List.of(
             new Cve("CVE-2025-24813", "GHSA-83qj-6fr2-vhqg", "critical",
-                    "8.5.0", "8.5.100", false,
+                    "8.5.0", "8.5.100", true,
                     "Analyzed", "2025-03-10",
                     List.of("org.apache.tomcat.embed:tomcat-embed-core", "org.apache.tomcat:tomcat-catalina"),
                     "CONFIG", "仅当 default servlet 开启了 writes(原文:disabled by default)且支持 partial PUT(原文:enabled by default)", null),
