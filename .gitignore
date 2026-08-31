@@ -1,3 +1,4 @@
 target/
 *.class
-tools/rules_dump.json
+
+# tools/sources.json 是判定表的原料与证据，**要进仓库**（可复现、可审计），别加进来。

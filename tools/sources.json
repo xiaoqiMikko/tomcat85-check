@@ -1,0 +1,1693 @@
+{
+ "generated": "2026-09-01 01:06:19",
+ "source_list": "https://tomcat.apache.org/security-9.html",
+ "rows": {
+  "CVE-2025-24813": {
+   "cve": "CVE-2025-24813",
+   "cna": {
+    "declares85": true,
+    "ranges85": [
+     {
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "inclusive": true
+     }
+    ],
+    "affected_raw": [
+     {
+      "product": "Apache Tomcat",
+      "lo": "11.0.0-M1",
+      "hi": "11.0.2",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.1.0-M1",
+      "hi": "10.1.34",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "9.0.0.M1",
+      "hi": "9.0.98",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "3",
+      "hi": "8.5.0",
+      "status": "unknown",
+      "inclusive": false
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.0.0-M1",
+      "hi": "10.0.27",
+      "status": "unknown",
+      "inclusive": true
+     }
+    ],
+    "title": "Apache Tomcat: Potential RCE and/or information disclosure and/or information corruption with partial PUT",
+    "description": "Path Equivalence: 'file.Name' (Internal Dot) leading to Remote Code Execution and/or Information disclosure and/or malicious content added to uploaded files via write enabled Default Servlet in Apache Tomcat.\n\nThis issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.2, from 10.1.0-M1 through 10.1.34, from 9.0.0.M1 through 9.0.98.\nThe following versions were EOL at the time the CVE was created but are \nknown to be affected: 8.5.0 though 8.5.100. Other, older, EOL versions \nmay also be affected.\n\n\nIf all of the following were true, a malicious user was able to view       security sensitive files and/or inject content into those files:\n- writes enabled for the default servlet (disabled by default)\n- support for partial PUT (enabled by default)\n- a target URL for security sensitive uploads that was a sub-directory of a target URL for public uploads\n- attacker knowledge of the names of security sensitive files being uploaded\n- the security sensitive files also being uploaded via partial PUT\n\nIf all of the following were true, a malicious user was able to       perform remote code execution:\n- writes enabled for the default servlet (disabled by default)\n- support for partial PUT (enabled by default)\n- application was using Tomcat's file based session persistence with the default storage location\n- application included a library that may be leveraged in a deserialization attack\n\nUsers are recommended to upgrade to version 11.0.3, 10.1.35 or 9.0.99, which fixes the issue."
+   },
+   "nvd": {
+    "status": "Analyzed",
+    "published": "2025-03-10",
+    "has85": false,
+    "ranges": [
+     {
+      "lo": null,
+      "hi": "9.0.99"
+     },
+     {
+      "lo": "10.1.1",
+      "hi": "10.1.35"
+     },
+     {
+      "lo": "11.0.1",
+      "hi": "11.0.3"
+     }
+    ],
+    "enum85": [],
+    "enum_count": 45,
+    "in_nvd": true
+   },
+   "gh": {
+    "ghsa": "GHSA-83qj-6fr2-vhqg",
+    "severity": "critical",
+    "type": "reviewed",
+    "summary": "Apache Tomcat: Potential RCE and/or information disclosure and/or information corruption with partial PUT",
+    "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H/E:H",
+    "pkgs85": [
+     {
+      "package": "org.apache.tomcat:tomcat-catalina",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     },
+     {
+      "package": "org.apache.tomcat.embed:tomcat-embed-core",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     }
+    ],
+    "all_pkgs": [
+     "maven:org.apache.tomcat.embed:tomcat-embed-core",
+     "maven:org.apache.tomcat:tomcat-catalina"
+    ]
+   }
+  },
+  "CVE-2025-31650": {
+   "cve": "CVE-2025-31650",
+   "cna": {
+    "declares85": true,
+    "ranges85": [
+     {
+      "lo": "8.5.90",
+      "hi": "8.5.100",
+      "inclusive": true
+     }
+    ],
+    "affected_raw": [
+     {
+      "product": "Apache Tomcat",
+      "lo": "9.0.76",
+      "hi": "9.0.102",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.1.10",
+      "hi": "10.1.39",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "11.0.0-M2",
+      "hi": "11.0.5",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "8.5.90",
+      "hi": "8.5.100",
+      "status": "affected",
+      "inclusive": true
+     }
+    ],
+    "title": "Apache Tomcat: DoS via malformed HTTP/2 PRIORITY_UPDATE frame",
+    "description": "Improper Input Validation vulnerability in Apache Tomcat. Incorrect error handling for some invalid HTTP priority headers resulted in incomplete clean-up of the failed request which created a memory leak. A large number of such requests could trigger an OutOfMemoryException resulting in a denial of service.\n\nThis issue affects Apache Tomcat: from 9.0.76 through 9.0.102, from 10.1.10 through 10.1.39, from 11.0.0-M2 through 11.0.5.\nThe following versions were EOL at the time the CVE was created but are \nknown to be affected: 8.5.90 though 8.5.100.\n\n\nUsers are recommended to upgrade to version 9.0.104, 10.1.40 or 11.0.6 which fix the issue."
+   },
+   "nvd": {
+    "status": "Modified",
+    "published": "2025-04-28",
+    "has85": false,
+    "ranges": [
+     {
+      "lo": "9.0.76",
+      "hi": "9.0.104"
+     },
+     {
+      "lo": "10.1.10",
+      "hi": "10.1.40"
+     },
+     {
+      "lo": "11.0.1",
+      "hi": "11.0.6"
+     }
+    ],
+    "enum85": [],
+    "enum_count": 24,
+    "in_nvd": true
+   },
+   "gh": {
+    "ghsa": "GHSA-3p2h-wqq4-wf4h",
+    "severity": "medium",
+    "type": "reviewed",
+    "summary": "Apache Tomcat Denial of Service via invalid HTTP priority header",
+    "cvss": null,
+    "pkgs85": [
+     {
+      "package": "org.apache.tomcat:tomcat-coyote",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     },
+     {
+      "package": "org.apache.tomcat.embed:tomcat-embed-core",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     }
+    ],
+    "all_pkgs": [
+     "maven:org.apache.tomcat.embed:tomcat-embed-core",
+     "maven:org.apache.tomcat:tomcat-coyote"
+    ]
+   }
+  },
+  "CVE-2025-31651": {
+   "cve": "CVE-2025-31651",
+   "cna": {
+    "declares85": true,
+    "ranges85": [
+     {
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "inclusive": true
+     }
+    ],
+    "affected_raw": [
+     {
+      "product": "Apache Tomcat",
+      "lo": "11.0.0-M1",
+      "hi": "11.0.5",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.1.0-M1",
+      "hi": "10.1.39",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "9.0.0.M1",
+      "hi": "9.0.102",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "8.0.0.RC1",
+      "hi": "8.5.0",
+      "status": "unknown",
+      "inclusive": false
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.0.0-M1",
+      "hi": "10.0.27",
+      "status": "unknown",
+      "inclusive": true
+     }
+    ],
+    "title": "Apache Tomcat: Bypass of rules in Rewrite Valve",
+    "description": "Improper Neutralization of Escape, Meta, or Control Sequences vulnerability in Apache Tomcat. For a subset of unlikely rewrite rule configurations, it was possible \nfor a specially crafted request to bypass some rewrite rules. If those \nrewrite rules effectively enforced security constraints, those \nconstraints could be bypassed.\n\nThis issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.5, from 10.1.0-M1 through 10.1.39, from 9.0.0.M1 through 9.0.102.\nThe following versions were EOL at the time the CVE was created but are \nknown to be affected: 8.5.0 though 8.5.100. Other, older, EOL versions \nmay also be affected.\n\n\nUsers are recommended to upgrade to version [FIXED_VERSION], which fixes the issue."
+   },
+   "nvd": {
+    "status": "Modified",
+    "published": "2025-04-28",
+    "has85": false,
+    "ranges": [
+     {
+      "lo": "9.0.0",
+      "hi": "9.0.104"
+     },
+     {
+      "lo": "10.1.0",
+      "hi": "10.1.40"
+     },
+     {
+      "lo": "11.0.0",
+      "hi": "11.0.6"
+     }
+    ],
+    "enum85": [],
+    "enum_count": 0,
+    "in_nvd": true
+   },
+   "gh": {
+    "ghsa": "GHSA-ff77-26x5-69cr",
+    "severity": "low",
+    "type": "reviewed",
+    "summary": "Apache Tomcat Rewrite rule bypass",
+    "cvss": null,
+    "pkgs85": [
+     {
+      "package": "org.apache.tomcat:tomcat-catalina",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     },
+     {
+      "package": "org.apache.tomcat.embed:tomcat-embed-core",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     }
+    ],
+    "all_pkgs": [
+     "maven:org.apache.tomcat.embed:tomcat-embed-core",
+     "maven:org.apache.tomcat:tomcat-catalina"
+    ]
+   }
+  },
+  "CVE-2025-46701": {
+   "cve": "CVE-2025-46701",
+   "cna": {
+    "declares85": true,
+    "ranges85": [
+     {
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "inclusive": true
+     }
+    ],
+    "affected_raw": [
+     {
+      "product": "Apache Tomcat",
+      "lo": "11.0.0-M1",
+      "hi": "11.0.6",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.1.0-M1",
+      "hi": "10.1.40",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "9.0.0.M1",
+      "hi": "9.0.104",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "3",
+      "hi": "8.5.0",
+      "status": "unknown",
+      "inclusive": false
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.0.0-M1",
+      "hi": "10.0.27",
+      "status": "unknown",
+      "inclusive": true
+     }
+    ],
+    "title": "Apache Tomcat: Security constraint bypass for CGI scripts",
+    "description": "Improper Handling of Case Sensitivity vulnerability in Apache Tomcat's GCI servlet allows security constraint bypass of security constraints that apply to the pathInfo component of a URI mapped to the CGI servlet.\n\nThis issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.6, from 10.1.0-M1 through 10.1.40, from 9.0.0.M1 through 9.0.104.\nThe following versions were EOL at the time the CVE was created but are \nknown to be affected: 8.5.0 though 8.5.100. Other, older, EOL versions \nmay also be affected.\n\n\nUsers are recommended to upgrade to version 11.0.7, 10.1.41 or 9.0.105, which fixes the issue."
+   },
+   "nvd": {
+    "status": "Modified",
+    "published": "2025-05-29",
+    "has85": false,
+    "ranges": [
+     {
+      "lo": "9.0.0",
+      "hi": "9.0.105"
+     },
+     {
+      "lo": "10.1.0",
+      "hi": "10.1.41"
+     },
+     {
+      "lo": "11.0.0",
+      "hi": "11.0.7"
+     }
+    ],
+    "enum85": [],
+    "enum_count": 0,
+    "in_nvd": true
+   },
+   "gh": {
+    "ghsa": "GHSA-h2fw-rfh5-95r3",
+    "severity": "low",
+    "type": "reviewed",
+    "summary": "Apache Tomcat - CGI security constraint bypass",
+    "cvss": null,
+    "pkgs85": [
+     {
+      "package": "org.apache.tomcat:tomcat-catalina",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     },
+     {
+      "package": "org.apache.tomcat.embed:tomcat-embed-core",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     }
+    ],
+    "all_pkgs": [
+     "maven:org.apache.tomcat.embed:tomcat-embed-core",
+     "maven:org.apache.tomcat:tomcat-catalina"
+    ]
+   }
+  },
+  "CVE-2025-48976": {
+   "cve": "CVE-2025-48976",
+   "cna": {
+    "declares85": false,
+    "ranges85": [],
+    "affected_raw": [
+     {
+      "product": "Apache Commons FileUpload",
+      "lo": "1.0",
+      "hi": "1.6",
+      "status": "affected",
+      "inclusive": false
+     },
+     {
+      "product": "Apache Commons FileUpload",
+      "lo": "2.0.0-M1",
+      "hi": "2.0.0-M4",
+      "status": "affected",
+      "inclusive": false
+     }
+    ],
+    "title": "Apache Commons FileUpload, Apache Commons FileUpload: FileUpload DoS via part headers",
+    "description": "Allocation of resources for multipart headers with insufficient limits enabled a DoS vulnerability in Apache Commons FileUpload.\n\nThis issue affects Apache Commons FileUpload: from 1.0 before 1.6; from 2.0.0-M1 before 2.0.0-M4.\n\nUsers are recommended to upgrade to versions 1.6 or 2.0.0-M4, which fix the issue."
+   },
+   "nvd": {
+    "status": "Modified",
+    "published": "2025-06-16",
+    "has85": false,
+    "ranges": [],
+    "enum85": [],
+    "enum_count": 0,
+    "in_nvd": true
+   },
+   "gh": {
+    "ghsa": "GHSA-vv7r-c36w-3prj",
+    "severity": "high",
+    "type": "reviewed",
+    "summary": "Apache Commons FileUpload, Apache Commons FileUpload: FileUpload DoS via part headers",
+    "cvss": null,
+    "pkgs85": [],
+    "all_pkgs": [
+     "maven:commons-fileupload:commons-fileupload",
+     "maven:org.apache.commons:commons-fileupload2-core"
+    ]
+   }
+  },
+  "CVE-2025-48988": {
+   "cve": "CVE-2025-48988",
+   "cna": {
+    "declares85": true,
+    "ranges85": [
+     {
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "inclusive": true
+     }
+    ],
+    "affected_raw": [
+     {
+      "product": "Apache Tomcat",
+      "lo": "11.0.0-M1",
+      "hi": "11.0.7",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.1.0-M1",
+      "hi": "10.1.41",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "9.0.0.M1",
+      "hi": "9.0.105",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "6",
+      "hi": "8.5.0",
+      "status": "unknown",
+      "inclusive": false
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.0.0-M1",
+      "hi": "10.0.27",
+      "status": "unknown",
+      "inclusive": true
+     }
+    ],
+    "title": "Apache Tomcat: FileUpload large number of parts with headers DoS",
+    "description": "Allocation of Resources Without Limits or Throttling vulnerability in Apache Tomcat.\n\nThis issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.7, from 10.1.0-M1 through 10.1.41, from 9.0.0.M1 through 9.0.105.\nThe following versions were EOL at the time the CVE was created but are \nknown to be affected: 8.5.0 though 8.5.100. Other, older, EOL versions \nmay also be affected.\n\n\nUsers are recommended to upgrade to version 11.0.8, 10.1.42 or 9.0.106, which fix the issue."
+   },
+   "nvd": {
+    "status": "Modified",
+    "published": "2025-06-16",
+    "has85": false,
+    "ranges": [
+     {
+      "lo": "9.0.0",
+      "hi": "9.0.106"
+     },
+     {
+      "lo": "10.1.0",
+      "hi": "10.1.42"
+     },
+     {
+      "lo": "11.0.0",
+      "hi": "11.0.8"
+     }
+    ],
+    "enum85": [],
+    "enum_count": 0,
+    "in_nvd": true
+   },
+   "gh": {
+    "ghsa": "GHSA-h3gc-qfqq-6h8f",
+    "severity": "high",
+    "type": "reviewed",
+    "summary": "Apache Tomcat - DoS in multipart upload",
+    "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "pkgs85": [
+     {
+      "package": "org.apache.tomcat:tomcat-catalina",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     },
+     {
+      "package": "org.apache.tomcat.embed:tomcat-embed-core",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     }
+    ],
+    "all_pkgs": [
+     "maven:org.apache.tomcat.embed:tomcat-embed-core",
+     "maven:org.apache.tomcat:tomcat-catalina"
+    ]
+   }
+  },
+  "CVE-2025-48989": {
+   "cve": "CVE-2025-48989",
+   "cna": {
+    "declares85": false,
+    "ranges85": [],
+    "affected_raw": [
+     {
+      "product": "Apache Tomcat",
+      "lo": "11.0.0-M1",
+      "hi": "11.0.9",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.1.0-M1",
+      "hi": "10.1.43",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "9.0.0.M1",
+      "hi": "9.0.107",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "status": "unknown",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.0.0-M1",
+      "hi": "10.0.27",
+      "status": "unknown",
+      "inclusive": true
+     }
+    ],
+    "title": "Apache Tomcat: h2 DoS - Made You Reset",
+    "description": "Improper Resource Shutdown or Release vulnerability in Apache Tomcat made Tomcat vulnerable to the made you reset attack.\n\nThis issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.9, from 10.1.0-M1 through 10.1.43 and from 9.0.0.M1 through 9.0.107. Older, EOL versions may also be affected.\n\nUsers are recommended to upgrade to one of versions 11.0.10, 10.1.44 or 9.0.108 which fix the issue."
+   },
+   "nvd": {
+    "status": "Modified",
+    "published": "2025-08-13",
+    "has85": false,
+    "ranges": [
+     {
+      "lo": "9.0.1",
+      "hi": "9.0.108"
+     },
+     {
+      "lo": "10.0.0",
+      "hi": "10.1.44"
+     },
+     {
+      "lo": "11.0.0",
+      "hi": "11.0.10"
+     }
+    ],
+    "enum85": [],
+    "enum_count": 27,
+    "in_nvd": true
+   },
+   "gh": {
+    "ghsa": "GHSA-gqp3-2cvr-x8m3",
+    "severity": "high",
+    "type": "reviewed",
+    "summary": "Apache Tomcat Improper Resource Shutdown or Release vulnerability",
+    "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "pkgs85": [],
+    "all_pkgs": [
+     "maven:org.apache.tomcat.embed:tomcat-embed-core",
+     "maven:org.apache.tomcat:tomcat-coyote"
+    ]
+   }
+  },
+  "CVE-2025-49124": {
+   "cve": "CVE-2025-49124",
+   "cna": {
+    "declares85": true,
+    "ranges85": [
+     {
+      "lo": "8.5.44",
+      "hi": "8.5.100",
+      "inclusive": true
+     }
+    ],
+    "affected_raw": [
+     {
+      "product": "Apache Tomcat",
+      "lo": "11.0.0-M1",
+      "hi": "11.0.7",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.1.0",
+      "hi": "10.1.41",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "9.0.23",
+      "hi": "9.0.105",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "8.5.44",
+      "hi": "8.5.100",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "7.0.95",
+      "hi": "7.0.109",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.0.0-M1",
+      "hi": "10.0.27",
+      "status": "unknown",
+      "inclusive": true
+     }
+    ],
+    "title": "Apache Tomcat: exe side-loading via icalcs.exe in Tomcat installer for Windows",
+    "description": "Untrusted Search Path vulnerability in Apache Tomcat installer for Windows. During installation, the Tomcat installer for Windows used icacls.exe without specifying a full path.\n\nThis issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.7, from 10.1.0 through 10.1.41, from 9.0.23 through 9.0.105.\nThe following versions were EOL at the time the CVE was created but are \nknown to be affected: 8.5.0 through 8.5.100 and 7.0.95 through 7.0.109. Other EOL versions may also be affected.\n\n\nUsers are recommended to upgrade to version 11.0.8, 10.1.42 or 9.0.106, which fix the issue."
+   },
+   "nvd": {
+    "status": "Modified",
+    "published": "2025-06-16",
+    "has85": false,
+    "ranges": [
+     {
+      "lo": "9.0.23",
+      "hi": "9.0.106"
+     },
+     {
+      "lo": "10.1.0",
+      "hi": "10.1.42"
+     },
+     {
+      "lo": "11.0.0",
+      "hi": "11.0.8"
+     }
+    ],
+    "enum85": [],
+    "enum_count": 0,
+    "in_nvd": true
+   },
+   "gh": {
+    "ghsa": "GHSA-42wg-hm62-jcwg",
+    "severity": "medium",
+    "type": "reviewed",
+    "summary": "Apache Tomcat installer for Windows has an untrusted search path vulnerability",
+    "cvss": null,
+    "pkgs85": [],
+    "all_pkgs": [
+     "maven:org.apache.tomcat.embed:tomcat-embed-core",
+     "maven:org.apache.tomcat:tomcat",
+     "maven:org.apache.tomcat:tomcat-catalina"
+    ]
+   }
+  },
+  "CVE-2025-49125": {
+   "cve": "CVE-2025-49125",
+   "cna": {
+    "declares85": true,
+    "ranges85": [
+     {
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "inclusive": true
+     }
+    ],
+    "affected_raw": [
+     {
+      "product": "Apache Tomcat",
+      "lo": "11.0.0-M1",
+      "hi": "11.0.7",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.1.0-M1",
+      "hi": "10.1.41",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "9.0.0.M1",
+      "hi": "9.0.105",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "8.0.0.RC1",
+      "hi": "8.5.0",
+      "status": "unknown",
+      "inclusive": false
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.0.0-M1",
+      "hi": "10.0.27",
+      "status": "unknown",
+      "inclusive": true
+     }
+    ],
+    "title": "Apache Tomcat: Security constraint bypass for pre/post-resources",
+    "description": "Authentication Bypass Using an Alternate Path or Channel vulnerability in Apache Tomcat.  When using PreResources or PostResources mounted other than at the root of the web application, it was possible to access those resources via an unexpected path. That path was likely not to be protected by the same security constraints as the expected path, allowing those security constraints to be bypassed.\n\nThis issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.7, from 10.1.0-M1 through 10.1.41, from 9.0.0.M1 through 9.0.105.\nThe following versions were EOL at the time the CVE was created but are \nknown to be affected: 8.5.0 through 8.5.100. Other, older, EOL versions \nmay also be affected.\n\n\nUsers are recommended to upgrade to version 11.0.8, 10.1.42 or 9.0.106, which fix the issue."
+   },
+   "nvd": {
+    "status": "Modified",
+    "published": "2025-06-16",
+    "has85": false,
+    "ranges": [
+     {
+      "lo": "9.0.0",
+      "hi": "9.0.106"
+     },
+     {
+      "lo": "10.1.0",
+      "hi": "10.1.42"
+     },
+     {
+      "lo": "11.0.0",
+      "hi": "11.0.8"
+     }
+    ],
+    "enum85": [],
+    "enum_count": 0,
+    "in_nvd": true
+   },
+   "gh": {
+    "ghsa": "GHSA-wc4r-xq3c-5cf3",
+    "severity": "medium",
+    "type": "reviewed",
+    "summary": "Apache Tomcat - Security constraint bypass for pre/post-resources",
+    "cvss": null,
+    "pkgs85": [
+     {
+      "package": "org.apache.tomcat:tomcat-catalina",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     },
+     {
+      "package": "org.apache.tomcat.embed:tomcat-embed-core",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     }
+    ],
+    "all_pkgs": [
+     "maven:org.apache.tomcat.embed:tomcat-embed-core",
+     "maven:org.apache.tomcat:tomcat-catalina"
+    ]
+   }
+  },
+  "CVE-2025-52434": {
+   "cve": "CVE-2025-52434",
+   "cna": {
+    "declares85": true,
+    "ranges85": [
+     {
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "inclusive": true
+     }
+    ],
+    "affected_raw": [
+     {
+      "product": "Apache Tomcat",
+      "lo": "9.0.0.M1",
+      "hi": "9.0.106",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "5",
+      "hi": "8.5.0",
+      "status": "unknown",
+      "inclusive": false
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.0.0-M1",
+      "hi": "10.0.27",
+      "status": "unknown",
+      "inclusive": true
+     }
+    ],
+    "title": "Apache Tomcat: APR/Native Connector crash leading to DoS",
+    "description": "Concurrent Execution using Shared Resource with Improper Synchronization ('Race Condition') vulnerability in Apache Tomcat when using the APR/Native connector. This was particularly noticeable with client initiated closes of HTTP/2 connections.\n\nThis issue affects Apache Tomcat: from 9.0.0.M1 through 9.0.106.\nThe following versions were EOL at the time the CVE was created but are \nknown to be affected: 8.5.0 through 8.5.100. Other, older, EOL versions \nmay also be affected.\n\n\nUsers are recommended to upgrade to version 9.0.107, which fixes the issue."
+   },
+   "nvd": {
+    "status": "Modified",
+    "published": "2025-07-10",
+    "has85": false,
+    "ranges": [
+     {
+      "lo": "9.0.0",
+      "hi": "9.0.107"
+     }
+    ],
+    "enum85": [],
+    "enum_count": 0,
+    "in_nvd": true
+   },
+   "gh": {
+    "ghsa": "GHSA-4j3c-42xv-3f84",
+    "severity": "medium",
+    "type": "reviewed",
+    "summary": "Apache Tomcat is vulnerable to resource exhaustion when using the APR/Native connector",
+    "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "pkgs85": [
+     {
+      "package": "org.apache.tomcat:tomcat-coyote",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     },
+     {
+      "package": "org.apache.tomcat.embed:tomcat-embed-core",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     }
+    ],
+    "all_pkgs": [
+     "maven:org.apache.tomcat.embed:tomcat-embed-core",
+     "maven:org.apache.tomcat:tomcat-coyote"
+    ]
+   }
+  },
+  "CVE-2025-52520": {
+   "cve": "CVE-2025-52520",
+   "cna": {
+    "declares85": true,
+    "ranges85": [
+     {
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "inclusive": true
+     }
+    ],
+    "affected_raw": [
+     {
+      "product": "Apache Tomcat",
+      "lo": "11.0.0-M1",
+      "hi": "11.0.8",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.1.0-M1",
+      "hi": "10.1.42",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "9.0.0.M1",
+      "hi": "9.0.106",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "6",
+      "hi": "8.5.0",
+      "status": "unknown",
+      "inclusive": false
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.0.0-M1",
+      "hi": "10.0.27",
+      "status": "unknown",
+      "inclusive": true
+     }
+    ],
+    "title": "Apache Tomcat: DoS via integer overflow in multipart file upload",
+    "description": "For some unlikely configurations of multipart upload, an Integer Overflow vulnerability in Apache Tomcat could lead to a DoS via bypassing of size limits.\n\nThis issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.8, from 10.1.0-M1 through 10.1.42, from 9.0.0.M1 through 9.0.106.\nThe following versions were EOL at the time the CVE was created but are \nknown to be affected: 8.5.0 through 8.5.100. Other, older, EOL versions \nmay also be affected.\n\n\nUsers are recommended to upgrade to version 11.0.9, 10.1.43 or 9.0.107, which fix the issue."
+   },
+   "nvd": {
+    "status": "Modified",
+    "published": "2025-07-10",
+    "has85": false,
+    "ranges": [
+     {
+      "lo": "9.0.0",
+      "hi": "9.0.107"
+     },
+     {
+      "lo": "10.1.0",
+      "hi": "10.1.43"
+     },
+     {
+      "lo": "11.0.0",
+      "hi": "11.0.9"
+     }
+    ],
+    "enum85": [],
+    "enum_count": 0,
+    "in_nvd": true
+   },
+   "gh": {
+    "ghsa": "GHSA-wr62-c79q-cv37",
+    "severity": "high",
+    "type": "reviewed",
+    "summary": "Apache Tomcat Catalina is vulnerable to DoS attack through bypassing of size limits",
+    "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "pkgs85": [
+     {
+      "package": "org.apache.tomcat:tomcat-catalina",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     },
+     {
+      "package": "org.apache.tomcat.embed:tomcat-embed-core",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     }
+    ],
+    "all_pkgs": [
+     "maven:org.apache.tomcat.embed:tomcat-embed-core",
+     "maven:org.apache.tomcat:tomcat-catalina"
+    ]
+   }
+  },
+  "CVE-2025-53506": {
+   "cve": "CVE-2025-53506",
+   "cna": {
+    "declares85": true,
+    "ranges85": [
+     {
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "inclusive": true
+     }
+    ],
+    "affected_raw": [
+     {
+      "product": "Apache Tomcat",
+      "lo": "11.0.0-M1",
+      "hi": "11.0.8",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.1.0-M1",
+      "hi": "10.1.42",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "9.0.0.M1",
+      "hi": "9.0.106",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.0.0-M1",
+      "hi": "10.0.27",
+      "status": "unknown",
+      "inclusive": true
+     }
+    ],
+    "title": "Apache Tomcat: DoS via excessive h2 streams at connection start",
+    "description": "Uncontrolled Resource Consumption vulnerability in Apache Tomcat if an HTTP/2 client did not acknowledge the initial settings frame that reduces the maximum permitted concurrent streams.\n\nThis issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.8, from 10.1.0-M1 through 10.1.42, from 9.0.0.M1 through 9.0.106.\nThe following versions were EOL at the time the CVE was created but are \nknown to be affected: 8.5.0 through 8.5.100. Other EOL versions may also be affected.\n\n\nUsers are recommended to upgrade to version 11.0.9, 10.1.43 or 9.0.107, which fix the issue."
+   },
+   "nvd": {
+    "status": "Modified",
+    "published": "2025-07-10",
+    "has85": false,
+    "ranges": [
+     {
+      "lo": "9.0.0",
+      "hi": "9.0.106"
+     },
+     {
+      "lo": "10.1.0",
+      "hi": "10.1.42"
+     },
+     {
+      "lo": "11.0.0",
+      "hi": "11.0.8"
+     }
+    ],
+    "enum85": [],
+    "enum_count": 0,
+    "in_nvd": true
+   },
+   "gh": {
+    "ghsa": "GHSA-25xr-qj8w-c4vf",
+    "severity": "high",
+    "type": "reviewed",
+    "summary": "Apache Tomcat Coyote vulnerable to Denial of Service via excessive HTTP/2 streams",
+    "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "pkgs85": [
+     {
+      "package": "org.apache.tomcat:tomcat-coyote",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     },
+     {
+      "package": "org.apache.tomcat.embed:tomcat-embed-core",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     }
+    ],
+    "all_pkgs": [
+     "maven:org.apache.tomcat.embed:tomcat-embed-core",
+     "maven:org.apache.tomcat:tomcat-coyote"
+    ]
+   }
+  },
+  "CVE-2025-55668": {
+   "cve": "CVE-2025-55668",
+   "cna": {
+    "declares85": false,
+    "ranges85": [],
+    "affected_raw": [
+     {
+      "product": "Apache Tomcat",
+      "lo": "11.0.0-M1",
+      "hi": "11.0.7",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.1.0-M1",
+      "hi": "10.1.41",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "9.0.0.M1",
+      "hi": "9.0.105",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "8",
+      "hi": "9.0.0.M1",
+      "status": "unknown",
+      "inclusive": false
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.0.0-M1",
+      "hi": "10.0.27",
+      "status": "unknown",
+      "inclusive": true
+     }
+    ],
+    "title": "Apache Tomcat: session fixation via rewrite valve",
+    "description": "Session Fixation vulnerability in Apache Tomcat via rewrite valve.\n\nThis issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.7, from 10.1.0-M1 through 10.1.41, from 9.0.0.M1 through 9.0.105.\nOlder, EOL versions may also be affected.\n\nUsers are recommended to upgrade to version 11.0.8, 10.1.42 or 9.0.106, which fix the issue."
+   },
+   "nvd": {
+    "status": "Modified",
+    "published": "2025-08-13",
+    "has85": false,
+    "ranges": [
+     {
+      "lo": "9.0.1",
+      "hi": "9.0.106"
+     },
+     {
+      "lo": "10.0.0",
+      "hi": "10.1.42"
+     },
+     {
+      "lo": "11.0.0",
+      "hi": "11.0.8"
+     }
+    ],
+    "enum85": [],
+    "enum_count": 27,
+    "in_nvd": true
+   },
+   "gh": {
+    "ghsa": "GHSA-23hv-mwm6-g8jf",
+    "severity": "medium",
+    "type": "reviewed",
+    "summary": "Apache Tomcat Session Fixation vulnerability",
+    "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:N/A:N",
+    "pkgs85": [],
+    "all_pkgs": [
+     "maven:org.apache.tomcat.embed:tomcat-embed-core",
+     "maven:org.apache.tomcat:tomcat-catalina"
+    ]
+   }
+  },
+  "CVE-2025-55752": {
+   "cve": "CVE-2025-55752",
+   "cna": {
+    "declares85": true,
+    "ranges85": [
+     {
+      "lo": "8.5.6",
+      "hi": "8.5.100",
+      "inclusive": true
+     }
+    ],
+    "affected_raw": [
+     {
+      "product": "Apache Tomcat",
+      "lo": "11.0.0-M1",
+      "hi": "11.0.10",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.1.0-M1",
+      "hi": "10.1.44",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "9.0.0.M11",
+      "hi": "9.0.108",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "8.5.6",
+      "hi": "8.5.100",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "3",
+      "hi": "8.5.0",
+      "status": "unknown",
+      "inclusive": false
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.0.0-M1",
+      "hi": "10.0.27",
+      "status": "unknown",
+      "inclusive": true
+     }
+    ],
+    "title": "Apache Tomcat: Directory traversal via rewrite with possible RCE if PUT is enabled",
+    "description": "Relative Path Traversal vulnerability in Apache Tomcat.\n\nThe fix for bug 60013 introduced a regression where the       rewritten URL was normalized before it was decoded. This introduced the       possibility that, for rewrite rules that rewrite query parameters to the       URL, an attacker could manipulate the request URI to bypass security       constraints including the protection for /WEB-INF/ and /META-INF/. If PUT requests were also enabled then malicious files could be uploaded leading to remote code execution. PUT requests are normally limited to trusted users and it is considered unlikely that PUT requests would be enabled in conjunction with a rewrite that manipulated the URI.\n\n\n\nThis issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.10, from 10.1.0-M1 through 10.1.44, from 9.0.0.M11 through 9.0.108.\n\nThe following versions were EOL at the time the CVE was created but are \nknown to be affected: 8.5.6 though 8.5.100. Other, older, EOL versions may also be affected.\nUsers are recommended to upgrade to version 11.0.11 or later, 10.1.45 or later or 9.0.109 or later, which fix the issue."
+   },
+   "nvd": {
+    "status": "Modified",
+    "published": "2025-10-27",
+    "has85": true,
+    "ranges": [
+     {
+      "lo": "8.5.6",
+      "hi": "8.5.100"
+     },
+     {
+      "lo": "9.0.1",
+      "hi": "9.0.109"
+     },
+     {
+      "lo": "10.0.0",
+      "hi": "10.0.27"
+     },
+     {
+      "lo": "10.1.0",
+      "hi": "10.1.45"
+     },
+     {
+      "lo": "11.0.0",
+      "hi": "11.0.11"
+     }
+    ],
+    "enum85": [],
+    "enum_count": 18,
+    "in_nvd": true
+   },
+   "gh": {
+    "ghsa": "GHSA-wmwf-9ccg-fff5",
+    "severity": "high",
+    "type": "reviewed",
+    "summary": "Apache Tomcat Vulnerable to Relative Path Traversal",
+    "cvss": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+    "pkgs85": [
+     {
+      "package": "org.apache.tomcat:tomcat",
+      "ecosystem": "maven",
+      "range": ">= 8.5.6, <= 8.5.100",
+      "first_patched": null
+     },
+     {
+      "package": "org.apache.tomcat:tomcat-catalina",
+      "ecosystem": "maven",
+      "range": ">= 8.5.6, <= 8.5.100",
+      "first_patched": null
+     },
+     {
+      "package": "org.apache.tomcat.embed:tomcat-embed-core",
+      "ecosystem": "maven",
+      "range": ">= 8.5.6, <= 8.5.100",
+      "first_patched": null
+     }
+    ],
+    "all_pkgs": [
+     "maven:org.apache.tomcat.embed:tomcat-embed-core",
+     "maven:org.apache.tomcat:tomcat",
+     "maven:org.apache.tomcat:tomcat-catalina"
+    ]
+   }
+  },
+  "CVE-2025-55754": {
+   "cve": "CVE-2025-55754",
+   "cna": {
+    "declares85": true,
+    "ranges85": [
+     {
+      "lo": "8.5.60",
+      "hi": "8.5.100",
+      "inclusive": true
+     }
+    ],
+    "affected_raw": [
+     {
+      "product": "Apache Tomcat",
+      "lo": "11.0.0-M1",
+      "hi": "11.0.10",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.1.0-M1",
+      "hi": "10.1.44",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "9.0.40",
+      "hi": "9.0.108",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "8.5.60",
+      "hi": "8.5.100",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "3",
+      "hi": "8.5.0",
+      "status": "unknown",
+      "inclusive": false
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.0.0-M1",
+      "hi": "10.0.27",
+      "status": "unknown",
+      "inclusive": true
+     }
+    ],
+    "title": "Apache Tomcat: console manipulation via escape sequences in log messages",
+    "description": "Improper Neutralization of Escape, Meta, or Control Sequences vulnerability in Apache Tomcat.\n\nTomcat did not escape ANSI escape sequences in log messages. If Tomcat was running in a console on a Windows operating system, and the console supported ANSI escape sequences, it was possible for an attacker to use a specially crafted URL to inject ANSI escape sequences to manipulate the console and the clipboard and attempt to trick an administrator into running an attacker controlled command. While no attack vector was found, it may have been possible to mount this attack on other operating systems.\n\n\n\nThis issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.10, from 10.1.0-M1 through 10.1.44, from 9.0.40 through 9.0.108.\n\nThe following versions were EOL at the time the CVE was created but are \nknown to be affected: 8.5.60 though 8.5.100. Other, older, EOL versions may also be affected.\nUsers are recommended to upgrade to version 11.0.11 or later, 10.1.45 or later or 9.0.109 or later, which fix the issue."
+   },
+   "nvd": {
+    "status": "Modified",
+    "published": "2025-10-27",
+    "has85": true,
+    "ranges": [
+     {
+      "lo": "8.5.60",
+      "hi": "8.5.100"
+     },
+     {
+      "lo": "9.0.40",
+      "hi": "9.0.109"
+     },
+     {
+      "lo": "10.0.0",
+      "hi": "10.0.27"
+     },
+     {
+      "lo": "10.1.0",
+      "hi": "10.1.45"
+     },
+     {
+      "lo": "11.0.0",
+      "hi": "11.0.11"
+     }
+    ],
+    "enum85": [],
+    "enum_count": 0,
+    "in_nvd": true
+   },
+   "gh": {
+    "ghsa": "GHSA-vfww-5hm6-hx2j",
+    "severity": "low",
+    "type": "reviewed",
+    "summary": "Apache Tomcat Vulnerable to Improper Neutralization of Escape, Meta, or Control Sequences",
+    "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H",
+    "pkgs85": [
+     {
+      "package": "org.apache.tomcat:tomcat",
+      "ecosystem": "maven",
+      "range": ">= 8.5.60, <= 8.5.100",
+      "first_patched": null
+     },
+     {
+      "package": "org.apache.tomcat.embed:tomcat-embed-core",
+      "ecosystem": "maven",
+      "range": ">= 8.5.60, <= 8.5.100",
+      "first_patched": null
+     },
+     {
+      "package": "org.apache.tomcat:tomcat-catalina",
+      "ecosystem": "maven",
+      "range": ">= 8.5.60, <= 8.5.100",
+      "first_patched": null
+     }
+    ],
+    "all_pkgs": [
+     "maven:org.apache.tomcat.embed:tomcat-embed-core",
+     "maven:org.apache.tomcat:tomcat",
+     "maven:org.apache.tomcat:tomcat-catalina"
+    ]
+   }
+  },
+  "CVE-2025-61795": {
+   "cve": "CVE-2025-61795",
+   "cna": {
+    "declares85": true,
+    "ranges85": [
+     {
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "inclusive": true
+     }
+    ],
+    "affected_raw": [
+     {
+      "product": "Apache Tomcat",
+      "lo": "11.0.0-M1",
+      "hi": "11.0.11",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.1.0-M1",
+      "hi": "10.1.46",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "9.0.0.M1",
+      "hi": "9.0.109",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "3",
+      "hi": "8.5.0",
+      "status": "unknown",
+      "inclusive": false
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.0.0-M1",
+      "hi": "10.0.27",
+      "status": "unknown",
+      "inclusive": true
+     }
+    ],
+    "title": "Apache Tomcat: Delayed cleaning of multi-part upload temporary files may lead to DoS",
+    "description": "Improper Resource Shutdown or Release vulnerability in Apache Tomcat.\n\nIf an error occurred (including exceeding limits) during the processing of a multipart upload, temporary copies of the uploaded parts written to disc were not cleaned up immediately but left for the garbage collection process to delete. Depending on JVM settings, application memory usage and application load, it was possible that space for the temporary copies of uploaded parts would be filled faster than GC cleared it, leading to a DoS.\n\n\n\nThis issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.11, from 10.1.0-M1 through 10.1.46, from 9.0.0.M1 through 9.0.109.\n\nThe following versions were EOL at the time the CVE was created but are \nknown to be affected: 8.5.0 though 8.5.100. Other, older, EOL versions may also be affected.\nUsers are recommended to upgrade to version 11.0.12 or later, 10.1.47 or later or 9.0.110 or later which fixes the issue."
+   },
+   "nvd": {
+    "status": "Modified",
+    "published": "2025-10-27",
+    "has85": true,
+    "ranges": [
+     {
+      "lo": "8.5.0",
+      "hi": "8.5.100"
+     },
+     {
+      "lo": "9.0.0",
+      "hi": "9.0.110"
+     },
+     {
+      "lo": "10.0.0",
+      "hi": "10.0.27"
+     },
+     {
+      "lo": "10.1.0",
+      "hi": "10.1.47"
+     },
+     {
+      "lo": "11.0.0",
+      "hi": "11.0.12"
+     }
+    ],
+    "enum85": [],
+    "enum_count": 0,
+    "in_nvd": true
+   },
+   "gh": {
+    "ghsa": "GHSA-hgrr-935x-pq79",
+    "severity": "low",
+    "type": "reviewed",
+    "summary": "Apache Tomcat Vulnerable to Improper Resource Shutdown or Release",
+    "cvss": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:N/I:N/A:H",
+    "pkgs85": [
+     {
+      "package": "org.apache.tomcat:tomcat",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     },
+     {
+      "package": "org.apache.tomcat:tomcat-catalina",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     },
+     {
+      "package": "org.apache.tomcat.embed:tomcat-embed-core",
+      "ecosystem": "maven",
+      "range": ">= 8.5.0, <= 8.5.100",
+      "first_patched": null
+     }
+    ],
+    "all_pkgs": [
+     "maven:org.apache.tomcat.embed:tomcat-embed-core",
+     "maven:org.apache.tomcat:tomcat",
+     "maven:org.apache.tomcat:tomcat-catalina"
+    ]
+   }
+  },
+  "CVE-2025-66614": {
+   "cve": "CVE-2025-66614",
+   "cna": {
+    "declares85": true,
+    "ranges85": [
+     {
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "inclusive": true
+     }
+    ],
+    "affected_raw": [
+     {
+      "product": "Apache Tomcat",
+      "lo": "11.0.0-M1",
+      "hi": "11.0.14",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "10.1.0-M1",
+      "hi": "10.1.49",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "9.0.0-M1",
+      "hi": "9.0.112",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "8.5.0",
+      "hi": "8.5.100",
+      "status": "affected",
+      "inclusive": true
+     },
+     {
+      "product": "Apache Tomcat",
+      "lo": "0",
+      "hi": "8.5.0",
+      "status": "unaffected",
+      "inclusive": false
+     }
+    ],
+    "title": "Apache Tomcat: Client certificate verification bypass due to virtual host mapping",
+    "description": "Improper Input Validation vulnerability.\n\nThis issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.14, from 10.1.0-M1 through 10.1.49, from 9.0.0-M1 through 9.0.112.\n\nThe following versions were EOL at the time the CVE was created but are \nknown to be affected: 8.5.0 through 8.5.100. Older EOL versions are not affected.\nTomcat did not validate that the host name provided via the SNI \nextension was the same as the host name provided in the HTTP host header \nfield. If Tomcat was configured with more than one virtual host and the \nTLS configuration for one of those hosts did not require client \ncertificate authentication but another one did, it was possible for a \nclient to bypass the client certificate authentication by sending \ndifferent host names in the SNI extension and the HTTP host header field.\n\n\n\nThe vulnerability only applies if client certificate authentication is \nonly enforced at the Connector. It does not apply if client certificate \nauthentication is enforced at the web application.\n\n\nUsers are recommended to upgrade to version 11.0.15 or later, 10.1.50 or later or 9.0.113 or later, which fix the issue."
+   },
+   "nvd": {
+    "status": "Modified",
+    "published": "2026-02-17",
+    "has85": false,
+    "ranges": [
+     {
+      "lo": "9.0.1",
+      "hi": "9.0.113"
+     },
+     {
+      "lo": "10.1.1",
+      "hi": "10.1.50"
+     },
+     {
+      "lo": "11.0.1",
+      "hi": "11.0.15"
+     }
+    ],
+    "enum85": [],
+    "enum_count": 73,
+    "in_nvd": true
+   },
+   "gh": {
+    "ghsa": "GHSA-fpj8-gq4v-p354",
+    "severity": "medium",
+    "type": "reviewed",
+    "summary": "Apache Tomcat - Client certificate verification bypass",
+    "cvss": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+    "pkgs85": [],
+    "all_pkgs": [
+     "maven:org.apache.tomcat.embed:tomcat-embed-core",
+     "maven:org.apache.tomcat:tomcat",
+     "maven:org.apache.tomcat:tomcat-coyote"
+    ]
+   }
+  }
+ },
+ "summary": {
+  "total": 17,
+  "gap": [
+   "CVE-2025-24813",
+   "CVE-2025-31650",
+   "CVE-2025-31651",
+   "CVE-2025-46701",
+   "CVE-2025-48988",
+   "CVE-2025-49124",
+   "CVE-2025-49125",
+   "CVE-2025-52434",
+   "CVE-2025-52520",
+   "CVE-2025-53506",
+   "CVE-2025-66614"
+  ],
+  "both": [
+   "CVE-2025-55752",
+   "CVE-2025-55754",
+   "CVE-2025-61795"
+  ],
+  "no_85_upstream": [
+   "CVE-2025-48976",
+   "CVE-2025-48989",
+   "CVE-2025-55668"
+  ]
+ }
+}
